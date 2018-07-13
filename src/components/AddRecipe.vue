@@ -7,9 +7,10 @@
                 <input type="text" name="title" placeholder="Recipe title"
                 v-model="title">
             </div>
-            <div v-for="(ingredient,index) in ingredients" :key="index">
+            <div v-for="(ingredient,index) in ingredients" :key="index" class="field">
                 <label for="ingredient">Ingredient</label>
                 <input type="text" name="ingredient" v-model="ingredients[index]"/>
+                <i class="material-icons delete" @click="onDeleteIngredient(ingredient)">delete</i>
             </div>
             <div class="field add">
                 <label for="add">Add an ingredient</label>
@@ -43,7 +44,7 @@ export default {
             }
         },
         methods: {
-            async onAddRecipe(){
+            onAddRecipe(){
                 console.log(this.title);
                 console.log(this.ingredients);
                 if(this.title){
@@ -55,12 +56,11 @@ export default {
                         lower: true
                     });
                     // console.log(this.slug);
-                  const result =  await db.collection('recipes').add({
+                  db.collection('recipes').add({
                         title: this.title,
                         slug: this.slug,
                         ingredients : this.ingredients
-                    });
-                    result.then(() => this.$router.push({name: 'Index'})).catch(err => console.log(err));
+                    }).then(() => this.$router.push({name: 'Index'})).catch(err => console.log(err));
                 }else{
                     this.feedback = 'You must enter a title for the recipe';
                 }
@@ -76,8 +76,12 @@ export default {
                 else{
                     this.feedback = 'You must enter a value to add an ingredient';
                 }
-            }
+            },
+        onDeleteIngredient(ing){
+            this.ingredients = this.ingredients.filter(ingredient => ingredient != ing);
         }
+        }
+        
     }
 </script>
 
@@ -94,5 +98,14 @@ export default {
 }
 .add-recipe .field {
     margin: 20px auto;
+    position: relative;
+}
+.add-recipe .delete {
+    position: absolute;
+    right: 0;
+    bottom: 16px;
+    color: #aaa;
+    font-size: 1.4em;
+    cursor: pointer;
 }
 </style>
