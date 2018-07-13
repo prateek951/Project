@@ -26,11 +26,16 @@
             }
         },
         methods: {
-            onDeleteRecipe(id){
-                console.log('inside the onDelete recipe');
-                this.recipes = this.recipes.filter(recipe => recipe.id !== id);
-                console.log(`after deleting one of the recipes... ${this.recipes}`);
-            }
+            async onDeleteRecipe(id){
+                // console.log('inside the onDelete recipe');
+                // this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+                // console.log(`after deleting one of the recipes... ${this.recipes}`);
+            // console.log(id);
+            await db.collection('recipes').doc(id).delete();
+            this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+            console.log('What are recipes now?',this.recipes);
+
+         }
         },
         async created(){
             //fetch data from the firestore
