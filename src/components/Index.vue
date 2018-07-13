@@ -1,3 +1,76 @@
 <template>
-    <h1>This is the index component of the application</h1>
+        <div class="index container">
+            <div class="card" v-for="recipe in recipes" :key="recipe.id">
+                <div class="card-content">
+                    <i class="material-icons delete" @click="onDeleteRecipe(recipe.id)">delete</i>
+                    <h2 class="indigo-text">{{ recipe.title }}</h2>
+                    <ul class="ingredients">
+                        <li v-for="(ingredient,index) in recipe.ingredients" :key="index">
+                            <span class="chip">{{ ingredient }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 </template>
+
+
+<script>
+    import db from '@/utils/fb';
+    /*eslint-disable*/
+    export default {
+        name: 'Index',
+        data() {
+            return {
+                recipes: []
+            }
+        },
+        methods: {
+            onDeleteRecipe(id){
+                console.log('inside the onDelete recipe');
+                this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+                console.log(`after deleting one of the recipes... ${this.recipes}`);
+            }
+        },
+        async created(){
+            //fetch data from the firestore
+            console.log('inside the created lifecycle hook...');
+            const snapshot = await db.collection('recipes').get();
+            snapshot.forEach(doc => {
+                // console.log(doc.data(),doc.id);
+                let recipe = doc.data();
+                recipe.id = doc.id;
+                this.recipes.push(recipe);
+            });
+            // console.log(this.recipes);
+        }
+    }
+</script>
+
+<style>
+    .index {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 30px;
+        margin-top: 60px;
+    }
+    .index h2{
+        font-size: 1.8em;
+        text-align: center;
+        margin-top: 0;
+    }
+    .index .ingredients{
+        margin: 30px auto;
+    }
+    .index .ingredients li {
+        display: inline-block;
+    }
+    .index .delete{
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        cursor: pointer;
+        color: #aaa;
+        font-size: 1.4em;
+    }
+</style>
