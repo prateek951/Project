@@ -7,6 +7,10 @@
                 <input type="text" name="title" placeholder="Recipe title"
                 v-model="title">
             </div>
+            <div v-for="(ingredient,index) in ingredients" :key="index">
+                <label for="ingredient">Ingredient</label>
+                <input type="text" name="ingredient" v-model="ingredients[index]"/>
+            </div>
             <div class="field add">
                 <label for="add">Add an ingredient</label>
                 <input type="text" name="add" 
@@ -24,20 +28,43 @@
 
 
 <script>
-    export default {
+import db from '@/utils/fb';
+import slugify from 'slugify';
+
+export default {
         name : 'AddRecipe',
         data() {
             return {
                 title : null,
                 anotherIngredient: null,
                 ingredients: [],
-                feedback : null
+                feedback : null,
+                slug: null
             }
         },
         methods: {
-            onAddRecipe(){
+            async onAddRecipe(){
                 console.log(this.title);
                 console.log(this.ingredients);
+                if(this.title){
+                    this.feedback = null;
+                    //create a slug
+                    this.slug = slugify(this.title,{
+                        replacement: '-',
+                        remove: /[$*_+~.()'"!\-:@]/g,
+                        lower: true
+                    });
+                    // console.log(this.slug);
+                  const result =  await db.collection('recipes').add({
+                        title: this.title,
+                        slug: this.slug,
+                        ingredients : this.ingredients
+                    });
+                    result.then(() => this.$router.push({name: 'Index'})).catch(err => console.log(err));
+                }else{
+                    this.feedback = 'You must enter a title for the recipe';
+                }
+
             },
             addIngredient(){
                 if(this.anotherIngredient){
